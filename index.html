@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <title>GRH - Simulator</title>
+</head>
+<body>
+  <p1>Simulador GRH</p1>
+  
+  <div>
+    <label>Server IP</label>
+    <input type="serverIp" id="ipServer" min="0" max="15" />
+    <label>Port</label>
+    <input type="serverPort" id="ipPort"/>
+    <button id="myButton">Clique-me!</button>
+  </div>
+  <div>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    // Call the makeRequest function here
+    document.getElementById('myButton').addEventListener('click', () => {
+      const host = document.getElementById('ipServer').value;
+      const port = parseInt(document.getElementById('ipPort').value);
+      window.electron.makeRequest(host, port);
+    });
+
+    // Handle the response and update the message content
+    window.electron.handleResponse((response) => {
+      const messageElement = document.getElementById('message');
+      if (response.error) {
+        messageElement.innerText = 'Erro na conexão: ' + response.error;
+      } else {
+        messageElement.innerText = 'Dados recebidos do servidor: ' + response;
+      }
+    });
+  </script>
+</body>
+</html>
+
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 20px;
+    }
+
+    p1 {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    div {
+      margin-top: 10px;
+    }
+
+    label {
+      font-weight: bold;
+      display: inline-block;
+      width: 100px;
+    }
+
+    input[type="serverIp"],
+    input[type="serverPort"] {
+      width: 150px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 8px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #message {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
