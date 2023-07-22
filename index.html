@@ -5,25 +5,63 @@
   <title>GRH - Simulator</title>
 </head>
 <body>
-  <p1>Simulador GRH</p1>
+    <p1>Simulador GRH</p1>
+    <div>
+        <label>Server IP</label>
+        <input type="serverIp" id="ipServer"/>
+        <label>Port</label>
+        <input type="serverPort" id="ipPort"/>
+        <button id="connect">Conectar</button>
+        <button id="disconnect">Desconectar</button>
+
+    </div>
   
   <div>
-    <label>Server IP</label>
-    <input type="serverIp" id="ipServer" min="0" max="15" />
-    <label>Port</label>
-    <input type="serverPort" id="ipPort"/>
-    <button id="myButton">Clique-me!</button>
-  </div>
-  <div>
-    <p id="message"></p>
+        <label>Frota</label>
+        <input type="frota" id="frota"/>
+        
+        <label class="checkbox-container">
+            <input type="checkbox" id="frameCode">
+            <span class="checkmark"></span>
+            Alive
+        </label>
+
+        <p id="timer">00:00:00</p>
+        <button onclick="startTimer()" id="iniciar" >Iniciar</button>
+        <button onclick="stopTimer()">Parar</button>
+        <button onclick="resetTimer()">Reiniciar</button>
+        <button onclick="packageMount()">Gerar</button>
+        <button id="enviar">Enviar</button>
+
+
   </div>
 
+  <div>
+    <p id="trama"></p>
+  </div>
+
+
   <script>
+
     // Call the makeRequest function here
-    document.getElementById('myButton').addEventListener('click', () => {
+    document.getElementById('connect').addEventListener('click', () => {
       const host = document.getElementById('ipServer').value;
-      const port = parseInt(document.getElementById('ipPort').value);
-      window.electron.makeRequest(host, port);
+      const port = document.getElementById('ipPort').value;
+      //window.electron.connectionRequest(host, port);
+      window.ipcRenderer.send('chamarFuncaoPrincipal', { functionName: 'connectServer', arguments: [port,host]});
+
+    });
+
+    document.getElementById('disconnect').addEventListener('click', () => {
+        window.ipcRenderer.send('chamarFuncaoPrincipal', { functionName: 'disconnectServer', arguments: [42, 'argumento1'] });
+    });
+
+    document.getElementById('enviar').addEventListener('click', () => {
+
+      var elemento = document.getElementById("trama");
+      var trama = elemento.textContent;
+      //var trama = document.getElementById('trama').value;
+        window.ipcRenderer.send('chamarFuncaoPrincipal', { functionName: 'sendMessage', arguments: trama});
     });
 
     // Handle the response and update the message content
@@ -36,6 +74,7 @@
       }
     });
   </script>
+<script src="./src/timer.js"></script>
 </body>
 </html>
 
@@ -90,4 +129,5 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
+
   </style>
