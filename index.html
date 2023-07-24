@@ -57,10 +57,8 @@
     });
 
     document.getElementById('enviar').addEventListener('click', () => {
-
       var elemento = document.getElementById("trama");
       var trama = elemento.textContent;
-      //var trama = document.getElementById('trama').value;
         window.ipcRenderer.send('chamarFuncaoPrincipal', { functionName: 'sendMessage', arguments: trama});
     });
 

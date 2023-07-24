@@ -15,26 +15,16 @@ const segundos = dataHoraAtual.getSeconds(); // Segundos (0-59)
 //console.log(`${dia}${mes}${ano} ${hora}${minutos}${segundos}`);
 
 
-
-
-function decimal2Bin(decimal) {
-    // Converte o número decimal para binário utilizando o método toString()
+function dec2Bin(decimal) {
     let binario = decimal.toString(2);
-  
-    // Adiciona zeros à esquerda, caso o número binário tenha menos de 8 dígitos (opcional)
-    binario = binario.padStart(8, '0');
-    binario = binario.slice(-8);
-
+    binario = binario.padStart(16, '0');
+    binario = binario.slice(-16);
     return binario;
   }
 
- function binario2Hex(binario) {
-    // Converte o número binário para decimal utilizando parseInt()
+ function bin2Hex(binario) {
     const decimal = parseInt(binario, 2);
-  
-    // Converte o número decimal para hexadecimal utilizando toString()
     const hexadecimal = decimal.toString(16).toUpperCase();
-  
     return hexadecimal;
   }
 
@@ -51,6 +41,7 @@ function checksum(data) {
   }
 
   function packageMount(){
+    console.log("alexadre");
     //KIJO95,00,114,V1,235238,010523,8125,-87,-5,11,34,000100,61
     const checkboxElementFrameCode = document.getElementById('frameCode');
     const isChecked = checkboxElementFrameCode.checked;
@@ -73,64 +64,28 @@ function checksum(data) {
         package = checksum(package);
 
     }else{
-        frameCode = '10'; // irrigação
-        if(running == true || minutes < 1) {
-            const payload = 'CA' + '0000';
-            var package = headerPack + ',' + fleet + ',' + version + ',' + time + ',' + data + ',' + fleetRecetor + ',' + rssi + ',' + snr + ',' + frameCode + ',' + frameId + ',' + payload + ',';
+            frameCode = '10'; // irrigação
+            const payloadBat = 'CA';
+            var tempo  = minutes + hours*60;
+            if(tempo <= 1){
+                tempo = 1;
+            }
+            const mask = 0b1111111;
+            var byte1 = (tempo & mask) << 1;
+            var byte2 = (tempo >> 7) & mask;
+            var result = ((byte1 << 8) | byte2);
+            //entrada = 106 saida -> D400  | entrada = 168 saida -> 5001 | entrada = 32767 saida -> 7FFF
+            //console.log("result: " + result.toString(2));
+            //console.log(result.toString(16));
+            var package = headerPack + ',' + fleet + ',' + version + ',' + time + ',' + data + ',' + fleetRecetor + ',' + rssi + ',' + snr + ',' + frameCode + ',' + frameId + ',' + payloadBat + result.toString(16).toUpperCase() + ',';
             package = checksum(package);
-        }
-        
-        var tempo = 106; // 01101010 em binario 
-        var byte1 = (tempo >> 1); // Shift direita por 1 bit --> 11010100 em binario
-        var byte2 = (tempo << 7); // Shift esquerda por 7 bits --> 00000000 00000000 in binary
-        // concatenar os dois bytes
-        var result = parseInt(2).byte1 + parseInt(2).byte2;  // 1101010000000000 in binary
-        // convertendo em hexa
-        //var resultHex = result.toString(16); //D400 em hexadecimal, resultado esperado
-        const payload = result;
-        var package = headerPack + ',' + fleet + ',' + version + ',' + time + ',' + data + ',' + fleetRecetor + ',' + rssi + ',' + snr + ',' + frameCode + ',' + frameId + ',' + payload + ',';
-        package = checksum(package);    
-
-
-        // var byte1 = (tempoIrrigacao >> 1);
-        //var byte2 = (tempoIrrigacao << 7);
-        // var byte1 = (tempoIrrigacao >> 8) & 0xFF;
-        // var byte2 = tempoIrrigacao & 0xFF;
-        // var resultado = (byte1 << 8) | byte2;
-        // console.log(resultado.);
-        //byte1 = byte1 << 1;
-        // var byte2 = (tempoIrrigacao << 7); //| (tempoIrrigacao >> 1);
-        //tempoIrrigacao = decimal2Bin(tempoIrrigacao);
-        // const valorDoPrimeiroBit = (tempoIrrigacao & mascara) === mascara;
-        // const mascara3 = 0b01111111; // 0x7F em hexadecimal
-        // const numeroSemPrimeiroBit = tempoIrrigacaobinario & mascara3;
-        // const numeroCompletadoComZeros = numeroSemPrimeiroBit.toString(2).padStart(8, '0');
-        // const numero1Deslocado = numeroCompletadoComZeros << 8;
-        // const numeroConcatenado = numero1Deslocado | mascara2;
-        // if (valorDoPrimeiroBit == 1){
-        //     const numeroConcatenado = numero1Deslocado | mascara2;
-        // }
-        //const payload = (tempoIrrigacao & 0x7F).toString(16);
-        //const alx = tempo.toString(16);
-
-
     }
-    
-    //KIJO95,00,1004020402,V1,195325,200723,42102,-93,3,10,10,C9D400,4B
-
-    
-    const payload = ''; //CE0000
-    const FrameCode = '11';
-
-    
-
     document.getElementById('trama').textContent = package;
 
   }
 
-
-
 function updateTimer() {
+
     seconds++;
     if (seconds == 60) {
         seconds = 0;
@@ -157,6 +112,7 @@ function startTimer() {
 }
 
 function stopTimer() {
+
     if (running) {
         running = false;
         clearInterval(intervalId);
@@ -164,6 +120,7 @@ function stopTimer() {
 }
 
 function resetTimer() {
+
     stopTimer();
     seconds = 0;
     minutes = 0;

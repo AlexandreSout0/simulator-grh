@@ -50,9 +50,40 @@ app.on('ready', () => {
 
 
 });
+function convertBinaryToSigned14Bits(binary) {
+  // Verifica se o número binário possui 14 bits e completa com zeros à esquerda, se necessário
+  if (binary.length < 14) {
+    binary = binary.padStart(14, '0');
+  } else if (binary.length > 14) {
+    console.log("O número binário deve conter exatamente 14 bits.");
+    return null;
+  }
 
-//
+  // Verifica o bit mais significativo (MSB) para determinar o sinal
+  const sign = binary[0] === '1' ? -1 : 1;
 
+  // Converte os 13 bits restantes em um número decimal (base 10)
+  const decimalValue = parseInt(binary.slice(1), 2);
+
+  // Multiplica pelo sinal para obter o valor final
+  const finalValue = sign * decimalValue;
+
+  return finalValue;
+}
+
+
+function dec2Bin(decimal) {
+  let binario = decimal.toString(2);
+  binario = binario.padStart(15, '0');
+  binario = binario.slice(-16);
+  return binario;
+}
+
+function bin2Hex(binario) {
+  const decimal = parseInt(binario, 2);
+  const hexadecimal = decimal.toString(16).toUpperCase();
+  return hexadecimal;
+}
 
 function connectServer(arguments) {
     let host = '200.219.213.241';//arguments[1];
